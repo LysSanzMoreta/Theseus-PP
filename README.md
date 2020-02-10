@@ -5,7 +5,7 @@ Protein superposition using probabilistic programming in Pyro
 Publication: https://ieeexplore.ieee.org/document/8791469
 
 Citation:
-
+```
 @INPROCEEDINGS{8791469,
 author={L. S. {Moreta} and A. S. {Al-Sibahi} and D. {Theobald} and W. {Bullock} and B. N. {Rommes} and A. {Manoukian} and T. {Hamelryck}},
 booktitle={2019 IEEE Conference on Computational Intelligence in Bioinformatics and Computational Biology (CIBCB)},
@@ -18,6 +18,7 @@ keywords={Bayes methods;biology computing;expectation-maximisation algorithm;ite
 doi={10.1109/CIBCB.2019.8791469},
 ISSN={null},
 month={July},}
+´´´
 
 
 
