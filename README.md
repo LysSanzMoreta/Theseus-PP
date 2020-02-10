@@ -18,8 +18,7 @@ keywords={Bayes methods;biology computing;expectation-maximisation algorithm;ite
 doi={10.1109/CIBCB.2019.8791469},
 ISSN={null},
 month={July},}
-´´´
-
+```
 
 
 
@@ -27,14 +26,16 @@ The Calling_SUPERPOSION.py file is designed to call the Theseus-PP model n amoun
 
 
 
-The input data is managed on this line of Calling_SUPERPOSITION.py: 
+The input data is managed on this line of Calling_SUPERPOSITION.py: https://github.com/LysSanzMoreta/Theseus-PP/blob/master/Calling_SUPERPOSITION.py#L31
 
 DataManagement.Read_Data('../PDB_files/{}.pdb'.format(name1), '../PDB_files/{}.pdb'.format(name2),type='all',models =(0,100),RMSD=True)
 
-- The files are in the PDB_files folder in the same directory
+- The files are in a **PDB_files folder** in the same directory
 - name1 and name2 are usually the same file name, but they are separated because some proteins NMR coordinates are divided in 2 different files (1adz1T and 1adz0T)
-- type = "all"---> for the PDB with a single sequence
-- type = "models" ---> for the protein files with several models in the same PDB
+a) PDB files containing a **single** sequence/model
+-type = "all"---> for the PDB with a single sequence/model
 - models = (0,len(seq))----> for the PDB with a single sequence. The number indicates the number of aa to be included
+b) PBD files containing **>1** models 
+- type = "models"
 - models = (0,3) ------> for the protein files with several models in the same PDB. The number of the models to be compared
 - RMSD = True, indicates if the superposition is initialized with the RMSD
