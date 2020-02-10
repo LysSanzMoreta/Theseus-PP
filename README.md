@@ -6,7 +6,7 @@ Publication: https://ieeexplore.ieee.org/document/8791469
 
 Citation:
 ```
-@INPROCEEDINGS{8791469,
+@INPROCEEDINGS{theseusPP2019,
 author={L. S. {Moreta} and A. S. {Al-Sibahi} and D. {Theobald} and W. {Bullock} and B. N. {Rommes} and A. {Manoukian} and T. {Hamelryck}},
 booktitle={2019 IEEE Conference on Computational Intelligence in Bioinformatics and Computational Biology (CIBCB)},
 title={A Probabilistic Programming Approach to Protein Structure Superposition},
