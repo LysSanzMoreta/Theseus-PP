@@ -2,7 +2,23 @@
 Protein superposition using probabilistic programming in Pyro
 
 
-Publication & Citations: https://ieeexplore.ieee.org/document/8791469
+Publication: https://ieeexplore.ieee.org/document/8791469
+
+Citation:
+
+@INPROCEEDINGS{8791469,
+author={L. S. {Moreta} and A. S. {Al-Sibahi} and D. {Theobald} and W. {Bullock} and B. N. {Rommes} and A. {Manoukian} and T. {Hamelryck}},
+booktitle={2019 IEEE Conference on Computational Intelligence in Bioinformatics and Computational Biology (CIBCB)},
+title={A Probabilistic Programming Approach to Protein Structure Superposition},
+year={2019},
+volume={},
+number={},
+pages={1-5},
+keywords={Bayes methods;biology computing;expectation-maximisation algorithm;iterative methods;maximum likelihood estimation;molecular biophysics;proteins;Bayesian model;THESEUS model;probabilistic model;protein superposition;latent mean structure;deep probabilistic programming language Pyro;maximum likelihood estimation;Bayesian probabilistic models;biomolecular structure;Bayesian protein structure prediction;probabilistic programming approach;protein structure superposition;correlated atom positions;THESEUS-PP model;MAP estimation;Proteins;Probabilistic logic;Covariance matrices;Bayes methods;Biological system modeling;Quaternions;Programming;protein superposition;Bayesian modelling;deep probabilistic programming;protein structure prediction},
+doi={10.1109/CIBCB.2019.8791469},
+ISSN={null},
+month={July},}
+
 
 
 
