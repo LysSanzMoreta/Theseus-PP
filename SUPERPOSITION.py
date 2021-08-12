@@ -1,39 +1,30 @@
+#####################################################################
+# THESEUS IMPLEMENTATION (PROTEIN SUPERPOSITION) by LYS SANZ MORETA #
+####################################################################
 import os,sys
 import time
-import ntpath
 from collections import defaultdict
 import ntpath
-import pandas as pd
 import numpy as np
-import math
-import timeit
 #Biopython
-from Bio.Seq import Seq
 import Bio.PDB as PDB
-from Bio.Seq import MutableSeq
 from Bio.PDB.Polypeptide import is_aa
 from Bio.SVDSuperimposer import SVDSuperimposer
-from mpl_toolkits.mplot3d import Axes3D
-import scipy.stats
 #PYRO
 import pyro
 import pyro.distributions as dist
-from pyro import poutine
-from pyro.infer.autoguide import AutoDelta, AutoDiagonalNormal,AutoLowRankMultivariateNormal,AutoMultivariateNormal, AutoGuide, init_to_median
-from pyro.infer import SVI, TraceEnum_ELBO, config_enumerate,Trace_ELBO, TraceGraph_ELBO, JitTrace_ELBO
+from pyro.infer.autoguide import AutoDelta,init_to_median
+from pyro.infer import SVI,Trace_ELBO
+from pyro.optim import PyroOptim
 import matplotlib as mpl #If errors when running Pymol: conda install pyqt=5.6 downgrade
 import matplotlib.pyplot as plt
 import tqdm
 #Early STOPPING
 from ignite.handlers import EarlyStopping
 from ignite.engine import Engine,Events
-from pyro.infer import SVI
-from pyro.optim import PyroOptim
 #TORCH: "Tensors"
 import torch
 import math
-from torch.distributions import constraints, transform_to
-from torch.optim import Adam, LBFGS
 #Pre-set ups: Necessary for some torch errors
 #torch.backends.cudnn.deterministic = True
 PyroOptim.state_dict = lambda self: self.get_state()
