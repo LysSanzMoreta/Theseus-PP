@@ -7,9 +7,9 @@ import torch
 import time
 import pandas as pd
 import timeit
-name1 = '1adz0T' #2nl7:139 #2do0=114
-name2 ='1adz1T'
-
+name1 = '1zwg' #2nl7:139 #2do0=114
+name2 ='1zwg'
+models = (0,3)
 
 
 def random_with_N_digits(n):
@@ -25,30 +25,31 @@ TimesDataframe=pd.DataFrame()
 distances_list=[]
 iterations_list=[]
 duration_list=[]
+
 for i in range(iterations):
     torch.manual_seed(random_with_N_digits(10))
     #Read the data, calculate distance of the structure to the origin and the average structure between the inputs
-    data_obs = DataManagement.Read_Data('../PDB_files/{}.pdb'.format(name1), '../PDB_files/{}.pdb'.format(name2),type='all',models =(0,100),RMSD=True)
-    max_var = DataManagement.Max_variance(data_obs[0])  # calculate the max pairwise distance to origin of the structure to set as value for max variance in the prior for mean struct
-    average = DataManagement.Average_Structure(data_obs)
+    data_obs = data_management.Read_Data('../PDB_files/{}.pdb'.format(name1), '../PDB_files/{}.pdb'.format(name2),type='chains',models =models,RMSD=True)
+    max_var = data_management.Max_variance(data_obs[0])  # calculate the max pairwise distance to origin of the structure to set as value for max variance in the prior for mean struct
+    average = data_management.Average_Structure(data_obs)
     data1, data2 = data_obs
     #Write the RMSD superimposed C alpha traces to a PDB file and visualize it in Pymol
-    DataManagement.write_ATOM_line(data1, 'RMSD_{}_data1.pdb'.format(name1))
-    DataManagement.write_ATOM_line(data2, 'RMSD_{}_data2.pdb'.format(name2))
-    DataManagement.Pymol("RMSD_{}_data1.pdb".format(name1), "RMSD_{}_data2.pdb".format(name2))
+    data_management.write_ATOM_line(data1, 'RMSD_{}_data1.pdb'.format(name1))
+    data_management.write_ATOM_line(data2, 'RMSD_{}_data2.pdb'.format(name2))
+    data_management.Pymol("RMSD_{}_data1.pdb".format(name1), "RMSD_{}_data2.pdb".format(name2))
     data_obs = max_var, data1, data2
     #Run the model and extract the parameters
     #SuperpositionModel.Run(data_obs, average, name1) #For Superposition Animation
     #exit()
-    T2, R, M, X1, X2,distances,info,duration = SuperpositionModel.Run(data_obs, average, name1)
+    T2, R, M, X1, X2,distances,info,duration = superposition_model.Run(data_obs, average, name1)
 
     duration_list.append(duration)
     iterations_list.append(info[0])
-    DataManagement.write_ATOM_line(M, 'M.pdb')
-    DataManagement.write_ATOM_line(X1, 'Result_{}_X1.pdb'.format(name1))
-    DataManagement.write_ATOM_line(X2, 'Result_{}_X2.pdb'.format(name2))
-    DataManagement.Write_PDB(r"../PDB_files/{}.pdb".format(name2), np.transpose(R), -T2,'Transformed')
-    DataManagement.Pymol("Result_{}_X1.pdb".format(name1), "Result_{}_X2.pdb".format(name2))
+    data_management.write_ATOM_line(M, 'M.pdb')
+    data_management.write_ATOM_line(X1, 'Result_{}_X1.pdb'.format(name1))
+    data_management.write_ATOM_line(X2, 'Result_{}_X2.pdb'.format(name2))
+    data_management.Write_PDB(r"../PDB_files/{}.pdb".format(name2), np.transpose(R), -T2,'Transformed')
+    data_management.Pymol("Result_{}_X1.pdb".format(name1), "Result_{}_X2.pdb".format(name2))
     distances_list.append(pd.Series(np.round(distances)).astype(int))
     print("Done_{}".format(i))
 

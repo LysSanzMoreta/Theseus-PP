@@ -8,7 +8,6 @@ import numpy as np
 import math
 import timeit
 #Biopython
-from Bio import SeqRecord,Alphabet,SeqIO
 from Bio.Seq import Seq
 import Bio.PDB as PDB
 from Bio.Seq import MutableSeq
@@ -20,7 +19,7 @@ import scipy.stats
 import pyro
 import pyro.distributions as dist
 from pyro import poutine
-from pyro.contrib.autoguide import AutoDelta, AutoDiagonalNormal,AutoLowRankMultivariateNormal,AutoMultivariateNormal, AutoGuide, init_to_median
+from pyro.infer.autoguide import AutoDelta, AutoDiagonalNormal,AutoLowRankMultivariateNormal,AutoMultivariateNormal, AutoGuide, init_to_median
 from pyro.infer import SVI, TraceEnum_ELBO, config_enumerate,Trace_ELBO, TraceGraph_ELBO, JitTrace_ELBO
 import matplotlib as mpl #If errors when running Pymol: conda install pyqt=5.6 downgrade
 import matplotlib.pyplot as plt
@@ -36,7 +35,7 @@ import math
 from torch.distributions import constraints, transform_to
 from torch.optim import Adam, LBFGS
 #Pre-set ups: Necessary for some torch errors
-torch.backends.cudnn.deterministic = True
+#torch.backends.cudnn.deterministic = True
 PyroOptim.state_dict = lambda self: self.get_state()
 mpl.use('agg') #Change matplotlib graphics backend to avoid conflict with Pymol
 tqdm.monitor_interval = 0
@@ -49,6 +48,8 @@ class SVIEngine(Engine):
     def _update(self, engine, batch):
         return -engine.svi.step(batch, **self._step_args)
 class DataManagement():
+    def __init__(self):
+        super(DataManagement, self).__init__()
     def Extract_coordinates_from_PDB(self,PDB_file,type):
         ''' Returns both the alpha carbon coordinates contained in the PDB file and the residues coordinates for the desired chains'''
         from Bio.PDB.PDBParser import PDBParser
@@ -133,8 +134,8 @@ class DataManagement():
             X1_coordinates = self.Extract_coordinates_from_PDB('{}'.format(prot1),type)[models[0]]
             X2_coordinates = self.Extract_coordinates_from_PDB('{}'.format(prot2),type)[models[1]]
         elif type == 'chains':
-            X1_coordinates = self.Extract_coordinates_from_PDB('{}'.format(prot1),type)[models[0]][0:141]
-            X2_coordinates = self.Extract_coordinates_from_PDB('{}'.format(prot2),type)[models[1]][0:141]
+            X1_coordinates = self.Extract_coordinates_from_PDB('{}'.format(prot1),type)[models[0]][0:50]
+            X2_coordinates = self.Extract_coordinates_from_PDB('{}'.format(prot2),type)[models[1]][0:50]
 
         elif type == 'all':
             X1_coordinates = self.Extract_coordinates_from_PDB('{}'.format(prot1),type)[models[0]:models[1]]
@@ -240,6 +241,8 @@ class DataManagement():
             Colour_Backbone(sname,color)
         pymol.cmd.png("Superposition_Pymol")
 class SuperpositionModel():
+    def __init__(self):
+        super(SuperpositionModel, self).__init__()
     def sample_R(self,ri_vec):
         """Inputs a sample of unit quaternion and transforms it into a rotation matrix"""
         theta1 = 2 * math.pi * ri_vec[1]
@@ -289,7 +292,7 @@ class SuperpositionModel():
         with pyro.plate("plate_univariate", data1.size(0)*data1.size(1),dim=-1):
             pyro.sample("X1", dist.StudentT(1,M_T1.view(-1), U),obs=data1.view(-1))
             pyro.sample("X2", dist.StudentT(1,M_R2_T2.view(-1), U), obs=data2.view(-1))
-    def Run(self,data_obs,average,name,):
+    def Run(self,data_obs,average,name):
         #INITIALIZING PRIOR :
         def init_prior(site):
             if site["name"] == "ri_vec":
@@ -303,16 +306,20 @@ class SuperpositionModel():
         #OPTIMIZER
         optim =pyro.optim.AdagradRMSProp(dict())
         #ELBO
-        elbo = JitTrace_ELBO()
+        elbo = Trace_ELBO()
         #STOCHASTIC VARIATIONAL INFERENCE
-        svi_engine = SVIEngine(self.model,global_guide,optim,loss=elbo)
+        svi_engine = SVIEngine(model =self.model,guide= global_guide,optim=optim,loss=elbo)
         pbar = tqdm.tqdm()
         loss_list = []
 
         #ERROR LOSS
         @svi_engine.on(Events.EPOCH_COMPLETED)
         def update_progress(svi_engine):
+            pbar.update(1)
             loss_list.append(-svi_engine.state.output)
+            plt.plot(loss_list)
+            plt.savefig(r"ELBO_Loss.png")
+            plt.close()
 
         # Register hooks to monitor gradient norms.
         svi_engine.run([data_obs],max_epochs=1)
@@ -329,9 +336,9 @@ class SuperpositionModel():
         stop=time.time()
         duration = stop-start
         #PLOTTING ELBO
-        plt.plot(loss_list)
-        plt.savefig(r"ELBO_Loss.png")
-        plt.close()
+        # plt.plot(loss_list)
+        # plt.savefig(r"ELBO_Loss.png")
+        # plt.close()
         ###PLOTTING THE GRADIENT
         plt.figure(figsize=(10, 4), dpi=100).set_facecolor('white')
         for name_i, grad_norms in gradient_norms.items():
@@ -382,10 +389,10 @@ class SuperpositionModel():
         ax.plot(x3, y3,z3, c='g', label='M',linewidth=3.0)
         ax.legend()
         plt.savefig(r"Superposition_Result_Matplotlib_{}".format(name))
-        distances = DataManagement.PairwiseDistances(torch.from_numpy(X1),torch.from_numpy(X2)).numpy()
+        distances = data_management.PairwiseDistances(torch.from_numpy(X1),torch.from_numpy(X2)).numpy()
         plt.clf()
-        plt.plot(DataManagement.PairwiseDistances(data1,data2).numpy(), linewidth = 8.0)
-        plt.plot(DataManagement.PairwiseDistances(torch.from_numpy(X1),torch.from_numpy(X2)).numpy(), linewidth=8.0)
+        plt.plot(data_management.PairwiseDistances(data1,data2).numpy(), linewidth = 8.0)
+        plt.plot(data_management.PairwiseDistances(torch.from_numpy(X1),torch.from_numpy(X2)).numpy(), linewidth=8.0)
         plt.ylabel('Pairwise distances',fontsize='46')
         plt.xlabel('Amino acid position',fontsize='46')
         plt.yticks(fontsize=30)
@@ -397,8 +404,8 @@ class SuperpositionModel():
 
         return T2.numpy(),R.numpy(),M, X1,X2,distances,(svi_engine.state.epoch,svi_engine.state.output),duration
 
-DataManagement = DataManagement()
-SuperpositionModel = SuperpositionModel()
+data_management = DataManagement()
+superposition_model = SuperpositionModel()
 
 
 
