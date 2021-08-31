@@ -325,6 +325,8 @@ class SuperpositionModel():
         start = time.time()
         svi_engine.run([data_obs],max_epochs=15000)
         stop=time.time()
+        pbar.refresh()
+        pbar.close()
         duration = stop-start
         #PLOTTING ELBO
         # plt.plot(loss_list)
