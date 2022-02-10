@@ -9,7 +9,10 @@ import numpy as np
 #Biopython
 import Bio.PDB as PDB
 from Bio.PDB.Polypeptide import is_aa
+from Bio.PDB import MMCIFParser
 from Bio.SVDSuperimposer import SVDSuperimposer
+from Bio.PDB.PDBParser import PDBParser
+from Bio.PDB import MMCIFParser, PDBIO
 #PYRO
 import pyro
 import pyro.distributions as dist
@@ -25,6 +28,7 @@ from ignite.engine import Engine,Events
 #TORCH: "Tensors"
 import torch
 import math
+
 #Pre-set ups: Necessary for some torch errors
 #torch.backends.cudnn.deterministic = True
 PyroOptim.state_dict = lambda self: self.get_state()
@@ -43,16 +47,14 @@ class DataManagement():
         super(DataManagement, self).__init__()
     def Extract_coordinates_from_PDB(self,PDB_file,type):
         ''' Returns both the alpha carbon coordinates contained in the PDB file and the residues coordinates for the desired chains'''
-        from Bio.PDB.PDBParser import PDBParser
-        from Bio.PDB import MMCIFParser
-        Name = ntpath.basename(PDB_file).split('.')[0]
+        name = ntpath.basename(PDB_file).split('.')[0]
 
         try:
             parser = PDB.PDBParser()
-            structure = parser.get_structure('%s' % (Name), PDB_file)
+            structure = parser.get_structure('%s' % (name), PDB_file)
         except:
             parser = MMCIFParser()
-            structure = parser.get_structure('%s' % (Name), PDB_file)
+            structure = parser.get_structure('%s' % (name), PDB_file)
 
         ############## Iterating over residues to extract all of them even if there is more than 1 chain
         if type=='models':
@@ -164,8 +166,6 @@ class DataManagement():
         return data_obs
     def Write_PDB(self,initialPDB,Rotation,Translation,N):
         ''' Transform by rotating and translating the atom coordinates from the original PDB file and rewrite it '''
-        from Bio.PDB.PDBParser import PDBParser
-        from Bio.PDB import MMCIFParser,PDBIO
         Name = ntpath.basename(initialPDB).split('.')[0]
 
         try:
@@ -325,13 +325,11 @@ class SuperpositionModel():
         start = time.time()
         svi_engine.run([data_obs],max_epochs=15000)
         stop=time.time()
-        pbar.refresh()
-        pbar.close()
         duration = stop-start
         #PLOTTING ELBO
-        # plt.plot(loss_list)
-        # plt.savefig(r"ELBO_Loss.png")
-        # plt.close()
+        plt.plot(loss_list)
+        plt.savefig(r"ELBO_Loss.png")
+        plt.close()
         ###PLOTTING THE GRADIENT
         plt.figure(figsize=(10, 4), dpi=100).set_facecolor('white')
         for name_i, grad_norms in gradient_norms.items():
